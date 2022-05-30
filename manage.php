@@ -53,6 +53,7 @@ if(isset($_POST['loginid']) && isset($_POST['loginpw'])){
             }
 
             for($i=0; $i<sizeof($result_a); $i++){
+                // 추천수
                 $stmt_c = $db->getsql()->prepare("SELECT COUNT(*) from Favorite where aid = ?");
                 $stmt_c->bind_param("s", $result_a[$i]['aid']);
 
@@ -60,6 +61,15 @@ if(isset($_POST['loginid']) && isset($_POST['loginpw'])){
                     $result_a[$i]['like'] = $stmt_c->get_result()->fetch_assoc()['COUNT(*)'];
                 }
 
+                // 댓글수
+                $stmt_r = $db->getsql()->prepare("SELECT COUNT(*) from Reply where aid = ?");
+                $stmt_r->bind_param("s", $result_a[$i]['aid']);
+
+                if($stmt_r->execute()){
+                    $result_a[$i]['reply'] = $stmt_r->get_result()->fetch_assoc()['COUNT(*)'];
+                }
+
+                // 유저 이름
                 $stmt_n = $db->getsql()->prepare("SELECT name from User where uid = ?");
                 $stmt_n->bind_param("s", $result_a[$i]['uid']);
 
@@ -68,6 +78,8 @@ if(isset($_POST['loginid']) && isset($_POST['loginpw'])){
                 }
 
             }
+
+            // 유저 목록
 
             $stmt_u = $db->getsql()->prepare("SELECT * from User order by User.since desc");
 
@@ -176,9 +188,10 @@ if(isset($_POST['loginid']) && isset($_POST['loginpw'])){
             <table class="articlelist">
                     <tr style="border-bottom: 2px solid black;">
                         <td style="width: 20%">제목</td>
-                        <td >내용</td>
-                        <td >조회수</td>
-                        <td >추천수</td>
+                        <td>내용</td>
+                        <td style="text-align: center;">조회수</td>
+                        <td style="text-align: center;">댓글수</td>
+                        <td style="text-align: center;">추천수</td>
                         <td style="width: 10%">작성자</td>
                         <td style="width: 20%">날짜</td>
                         <td style="text-align: right;">삭제</td>
@@ -189,9 +202,10 @@ if(isset($_POST['loginid']) && isset($_POST['loginpw'])){
                     ?>
                     <tr>
                     <td style="font-size: 16px;"><?php echo $result_a[$i]['title']; ?> </td>
-                    <td><button class="button" style="margin: 0px" onclick="alert('<?php echo '...' ?>')">보기</button></td>
-                    <td style="font-size: 16px;"><?php echo $result_a[$i]['view']; ?> </td>
-                    <td style="font-size: 16px;"><?php echo $result_a[$i]['like']; ?> </td>
+                    <td><button class="button" style="margin: 0px" onclick="alert(`<?php echo $result_a[$i]['text']?>`)">보기</button></td>
+                    <td style="font-size: 16px; text-align: center;"><?php echo $result_a[$i]['view']; ?> </td>
+                    <td style="font-size: 16px; text-align: center;"><?php echo $result_a[$i]['reply']; ?> </td>
+                    <td style="font-size: 16px; text-align: center;"><?php echo $result_a[$i]['like']; ?> </td>
                     <td style="font-size: 16px;"><?php echo $result_a[$i]['name']; ?> </td>
                     <td style="font-size: 16px;"><?php echo $result_a[$i]['date']; ?> </td>
                     <td style="text-align: right;">
@@ -220,10 +234,10 @@ if(isset($_POST['loginid']) && isset($_POST['loginpw'])){
                     <tr style="border-bottom: 2px solid black;">
                         <td style="width: 15%">유저 id</td>
                         <td style="width: 15%">유저 이름</td>
-                        <td style="width: 6%">글 개수</td>
+                        <td style="width: 6%; text-align: center;">글 개수</td>
                         <td style="width: 20%">가입일</td>
                         <td style="width: 30%">인사말</td>
-                        <td style="width: 6%">이모지</td>
+                        <td style="width: 6%; text-align: center;">이모지</td>
                         <td style="text-align: right;">삭제</td>
                     </tr>
 
@@ -233,10 +247,10 @@ if(isset($_POST['loginid']) && isset($_POST['loginpw'])){
                     <tr>
                     <td style="font-size: 16px;"><?php echo $result_u[$i]['uid']; ?> </td>
                     <td style="font-size: 16px;"><?php echo $result_u[$i]['name']; ?> </td>
-                    <td style="font-size: 16px;"><?php echo $result_u[$i]['count']; ?> </td>
+                    <td style="font-size: 16px; text-align: center;"><?php echo $result_u[$i]['count']; ?> </td>
                     <td style="font-size: 16px;"><?php echo $result_u[$i]['since']; ?> </td>
                     <td style="font-size: 16px;"><?php echo $result_u[$i]['greet']; ?> </td>
-                    <td style="font-size: 20px;"><?php echo $result_u[$i]['emoji']; ?> </td>
+                    <td style="font-size: 20px; font-size: 20px; text-align: center;"><?php echo $result_u[$i]['emoji']; ?> </td>
                     <td style="text-align: right;">
                         <form class="userdel" id="userdel" action="manage.php" onsubmit="return confirm('정말 삭제하시겠습니까?')" method="POST">
                             <input style="display:none" name="loginid" placeholder="" value="<?php echo $id; ?>" readonly>
