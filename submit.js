@@ -63,29 +63,34 @@ function gouser(url, id1, id2){
 
 function delreply(url, id1, id2, rid){
 
-    var form = document.createElement("form");
-    form.setAttribute("charset", "UTF-8");
-    form.setAttribute("method", "Post");  //Post 방식
-    form.setAttribute("action", url); //요청 보낼 주소
+    
+    if(confirm('정말 댓글을 삭제할 건가요?')){
 
-    var hiddenField = document.createElement("input");
-    hiddenField.setAttribute("type", "hidden");
-    hiddenField.setAttribute("name", "loginid");
-    hiddenField.setAttribute("value", id1);
-    form.appendChild(hiddenField);
+        var form = document.createElement("form");
+        form.setAttribute("charset", "UTF-8");
+        form.setAttribute("method", "Post");  //Post 방식
+        form.setAttribute("action", url); //요청 보낼 주소
 
-    hiddenField = document.createElement("input");
-    hiddenField.setAttribute("type", "hidden");
-    hiddenField.setAttribute("name", "aid");
-    hiddenField.setAttribute("value", id2);
-    form.appendChild(hiddenField);
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "loginid");
+        hiddenField.setAttribute("value", id1);
+        form.appendChild(hiddenField);
 
-    hiddenField = document.createElement("input");
-    hiddenField.setAttribute("type", "hidden");
-    hiddenField.setAttribute("name", "rem_reply");
-    hiddenField.setAttribute("value", rid);
-    form.appendChild(hiddenField);
+        hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "aid");
+        hiddenField.setAttribute("value", id2);
+        form.appendChild(hiddenField);
 
-    document.body.appendChild(form);
-    form.submit();
+        hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "rem_reply");
+        hiddenField.setAttribute("value", rid);
+        form.appendChild(hiddenField);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
 }

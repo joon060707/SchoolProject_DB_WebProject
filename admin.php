@@ -34,7 +34,7 @@
                         }
                     }
                 };
-                xmlhttp.open("GET", "login.php?loginid=" + id +"&loginpw="+pw, true);
+                xmlhttp.open("GET", "login_admin.php?loginid=" + id +"&loginpw="+pw, true);
                 xmlhttp.send();
             }
 
@@ -58,19 +58,16 @@
             <p class="msg">아이디가 없거나 비밀번호가 일치하지 않습니다. 다시 시도해 주세요.</p>
             </div>
 
-            <form class="login" id="loginform" action="user.php" method="POST">
-                <p class="logo" id="logintest">My thought</p>
+            <form class="login" id="loginform" action="manage.php" method="POST">
+                <p class="logo" id="logintest">관리자</p>
                 <input class="login_in" id="loginid" onkeyup="enter()" name="loginid" placeholder="아이디" required>
                 <input class="login_in" id="loginpw" onkeyup="enter()" name="loginpw" placeholder="비밀번호" type="password" required>
             </form>
                 <button class="button" onclick="login()">로그인</button>
 
-            <a href="signup.php"><p style="width: 200px; margin: auto; font-size:20px;">가입</p></a>
+                <a href="index.php"><p style="width: 200px; margin: auto; font-size:20px;">뒤로</p></a>
 
-    
         </div>
-
-        <a href="admin.php"><p style="width: 200px; margin: auto; font-size:20px;">Admin</p></a>
 
 
     </body>

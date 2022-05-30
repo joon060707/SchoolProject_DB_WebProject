@@ -14,6 +14,10 @@
         <script>
             function signin() {
                 var id = document.getElementById("id").value;
+                if(id==""){
+                    alert("아이디를 입력하세요.");
+                    return;
+                }
 
                 var xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function() {
@@ -71,35 +75,24 @@
             
         </div>
 
-
-        <div class="test" style="display: block;">
-
-
+        <!-- <div class="test" style="display: block;">
             <p class="title">테스트</p>
-
             <?php        
-            $stmt = $db->getsql()->prepare("SELECT * from User");
-            if($stmt->execute()){
+            // $stmt = $db->getsql()->prepare("SELECT * from User");
+            // if($stmt->execute()){
 
-                $result = (array) $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            //     $result = (array) $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-                echo json_encode($result);
-                echo $result[0]['greet'];
-                echo $result[0]['greet'];
-
-            }
-
-            for($i=0; $i<10; $i++){
-                echo('<p class="title">테스트<br/></p>');
-                echo("<p class='title'>테스트2<br/></p>");
-            }
+            //     echo json_encode($result);
+            //     echo $result[0]['greet'];
+            //     echo $result[0]['greet'];
+            // }
+            // for($i=0; $i<10; $i++){
+            //     echo('<p class="title">테스트<br/></p>');
+            //     echo("<p class='title'>테스트2<br/></p>");
+            // }
             ?>
-
-
-
-
-
-        </div>
+        </div> -->
 
     </body>
 </html>

@@ -19,6 +19,7 @@ if(isset($_POST['inp_user'])){ //유저 검색창
 
     $name = $_POST['inp_user'];
    // echo $name;
+    if($name=="*") $name="";
 
     $stmt = $db->getsql()->prepare("SELECT * from User where uid like '%".$name."%' or name like '%".$name."%'");
 
@@ -59,7 +60,7 @@ if(isset($_POST['inp_user'])){ //유저 검색창
             <form class="reply" style="margin: 20px 20px 0px;" id="reply" action="search.php" method="POST">
                 <div style="display: flex;">
                     <input class="inp_txt" style="display:none" name="loginid" placeholder="" value="<?php echo $id; ?>" readonly>
-                    <input class="inp_txt" style="width: 90%;" id="inp_user" name="inp_user" placeholder="유저 검색"  value="<?php echo $name; ?>" required>
+                    <input class="inp_txt" style="width: 90%;" id="inp_user" name="inp_user" placeholder="유저 검색(모든 유저 검색시 * 입력)"  value="<?php echo $name; ?>" required>
                     <input class="button" type="submit" value="🔍">
                 </div>
             </form>
@@ -91,7 +92,7 @@ if(isset($_POST['inp_user'])){ //유저 검색창
             ?>
 
             <!-- Original
-            <div class="block_search" <?php echo 'onclick="gouser(\'user.php\', \''; echo $id; echo '\', \'';echo $result_user[$i]["uid"];echo '\')"';?> >
+            <div class="block_search" <?php echo 'onclick="gouser(\'user.php\', \''; echo $id; echo '\', \'';echo $result_user[0]["uid"];echo '\')"';?> >
                 <div class="emoji2"> <?php echo $result_user[0]['emoji']; ?> </div>
                 <div style="text-align: left; margin: auto 20px; width: 100%">
                     <p style="font-size: 30px; font-weight:500;"> <?php echo $result_user[0]["name"]; ?> </p>

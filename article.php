@@ -16,11 +16,15 @@ if(isset($_POST['loginid'])){
     }
 
 
+}else{
+    echo '<meta http-equiv="refresh" content="0; url=index.php"></meta>';
+    exit;
 }
 
 if(isset($_POST['aid'])){
 
     $aid = $_POST['aid'];
+
 
     $stmt_a = $db->getsql()->prepare("SELECT * from Article where aid = ?");
     $stmt_a->bind_param("s", $aid);
@@ -28,7 +32,30 @@ if(isset($_POST['aid'])){
 
         $article = (array) $stmt_a->get_result()->fetch_assoc();
         //echo json_encode($article);
+
+        if($article==null){   
+            echo '<meta http-equiv="refresh" content="0; url=index.php"></meta>';
+            exit;
+        }
+
+
         $author = $article['uid'];
+
+        // 유저 이름 조회
+        $stmt_name = $db->getsql()->prepare("SELECT name from User where uid = ?");
+        $stmt_name->bind_param("s", $author);
+        if($stmt_name->execute()){
+            $authorname = $stmt_name->get_result()->fetch_assoc()['name'];
+        }
+        
+        // 좋아요 조회
+        $stmt_heart = $db->getsql()->prepare("SELECT COUNT(*) from Favorite where aid = ?");
+        $stmt_heart->bind_param("s", $aid);
+        if($stmt_heart->execute()){
+            $heart = $stmt_heart->get_result()->fetch_assoc()["COUNT(*)"];
+        } else{
+            $heart = 0;
+        }
 
 
         // 조회수
@@ -63,18 +90,29 @@ if(isset($_POST['aid'])){
         }
 
         // 댓글 로딩
-        $stmtr2 = $db->getsql()->prepare("SELECT * from Reply where aid = ?  order by Reply.date desc");
+        // select Reply.*, User.name from Reply, User where aid = 'a627a0bf58ab788.72659535' and User.uid = Reply.uid
+        $stmtr2 = $db->getsql()->prepare("SELECT Reply.*, User.name from Reply, User where aid = ? and User.uid = Reply.uid order by Reply.date desc");
         $stmtr2->bind_param("s", $aid);
     
         if($stmtr2->execute()){
     
             $result_reply = (array) $stmtr2->get_result()->fetch_all(MYSQLI_ASSOC);
+            for($i = 0; $i < sizeof($result_reply); $i++){
+
+            }
             //$uid = $result["uid"];
     
             //echo json_encode($result_reply);
         }
 
+    }else{
+        echo '<meta http-equiv="refresh" content="0; url=index.php"></meta>';
+        exit;
     }
+
+}else{
+    echo '<meta http-equiv="refresh" content="0; url=index.php"></meta>';
+    exit;
 }
 
 
@@ -94,6 +132,114 @@ if(isset($_POST['aid'])){
         <script src="submit.js"></script>
         <script>
 
+            var fid = "";
+            var heart = parseInt('<?php echo $heart; ?>');
+
+            window.onload = function(){
+
+                var id = '<?php echo $id; ?>'; // 로그인한 id(작성자)
+                var aid = '<?php echo $aid; ?>'; // 글 id
+
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+
+                        fid = this.responseText.trim();
+                        if(fid==""){
+                            document.getElementById("fav").style.color = 'black';
+                            document.getElementById("fav").onclick = favadd;
+                            
+                        }else{
+                            document.getElementById("fav").style.color = 'red';
+                            document.getElementById("fav").onclick = favdel;
+                        }
+                    }
+                };
+                xmlhttp.open("GET", "favget.php?uid=" + id + "&aid=" + aid, true);
+                xmlhttp.send();
+            }
+
+            function favadd(){
+
+                var authoruid = '<?php echo $author; ?>'; 
+                var id = '<?php echo $id; ?>'; // 로그인한 id(작성자)
+                var aid = '<?php echo $aid; ?>'; // 글 id
+
+                if(authoruid==id){
+                    alert("자신의 글에 '좋아요'할 수 없습니다!");
+                    return;
+                }
+
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+
+                        var result = this.responseText.trim();
+                        if(result!="Failure"){
+
+                            fid = result;
+
+                            document.getElementById("fav").style.color = 'red';
+                            document.getElementById("fav").onclick = favdel;
+                            console.log('favadd');
+                            alert("좋아요!");
+                    
+                            heart++;
+                            document.getElementById("favcount").innerText = '♥: '+heart;
+
+                        }else{
+                            alert("처리 오류. 잠시 후 시도하세요.");
+                        }
+                    }
+                };
+
+                xmlhttp.open("GET", "favadd.php?uid=" + id + "&aid=" + aid, true);
+                xmlhttp.send();
+
+
+            }
+
+            function favdel(){
+
+                if(fid==""){
+                    alert("오류가 발생했습니다. 새로고침해주세요.");
+                    return;
+                }
+
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+
+                        var result = this.responseText.trim();
+                        if(result=="Success"){
+
+                            document.getElementById("fav").style.color = 'black';
+                            document.getElementById("fav").onclick = favadd;
+                            console.log('favdel');
+                            alert("좋아요가 취소되었습니다.");
+
+                            heart--;
+                            document.getElementById("favcount").innerText = '♥: '+heart;
+
+
+
+                        }else{
+                            alert("처리 오류. 잠시 후 시도하세요.");
+                        }
+                    }
+                };
+
+                xmlhttp.open("GET", "favdel.php?fid=" + fid, true);
+                xmlhttp.send();
+
+
+            }       
+
+            function del(){
+                if(confirm("정말 글을 삭제하시겠습니까? 삭제하신 글은 복구할 수 없습니다!"))
+                    submit2('articledel.php', '<?php echo $id ?>', '<?php echo $aid ?>');
+            }
+
 
         </script>
 
@@ -108,8 +254,10 @@ if(isset($_POST['aid'])){
         <p class="atitle"> <?php echo $article['title'];?> </p>    
         <div class="line"></div>
 
-        <p class="adate"> 조회수: <?php echo $view;?>회 </p> 
+        <p class="adate" style="text-align: center"> by <?php echo $authorname;?> </p> 
         <p class="adate"> <?php echo $article['date'];?> </p> 
+        <p class="adate"> 조회수: <?php echo $view;?>회 </p> 
+        <p class="adate" id="favcount" style="color: red"> ♥: <?php echo $heart;?> </p> 
 
         <p class="atext"> <?php
 
@@ -117,7 +265,7 @@ if(isset($_POST['aid'])){
         echo $txt;
         ?> </p> 
 
-        <button class="button" style="margin: 0px; width: 40px; /*color: red;*/" onclick="">♥</button>
+        <button class="button" id='fav' style="margin: 0px; width: 40px; /*color: red;*/" onclick="">♥</button>
 
         <form class="reply" id="reply" action="article.php" method="POST">
             <div style="display: flex;">
@@ -137,7 +285,7 @@ if(isset($_POST['aid'])){
                 echo '<tr>';
                 
                 echo '<td style="font-size: 18px;">';
-                echo $result_reply[$i]['uid'];
+                echo $result_reply[$i]['name'];
                 if($result_reply[$i]['uid'] == $id){
                     echo '<button class="button" style="width:60px; margin:0px;" onclick="delreply(\'article.php\', \'';
                     echo $id.'\', \'';
@@ -160,19 +308,38 @@ if(isset($_POST['aid'])){
             ?>
         </table>
 
+        <?php if($id == $author){ ?>
+        <button class="button" onclick="submit2('articleedit.php', '<?php echo $id ?>', '<?php echo $aid ?>')">수정</button>
+        <button class="button" onclick="del()">삭제</button>
+        <?php } ?>
+
         <button class="button" onclick="<?php
-        if($id == $author){
             echo "submit('user.php', '";
             echo $id;
             echo '\')';
-        } else{
+        ?>">내 홈으로</button>
+
+        
+        <button class="button" style="width: auto;" onclick="<?php
             echo "gouser('user.php', '";
             echo $id;
             echo '\', \'';
             echo $author;
             echo '\')';
-        }
-        ?>">뒤로가기</button>
+        // if($id == $author){
+        //     echo "submit('user.php', '";
+        //     echo $id;
+        //     echo '\')';
+        // } else{
+        //     echo "gouser('user.php', '";
+        //     echo $id;
+        //     echo '\', \'';
+        //     echo $author;
+        //     echo '\')';
+        // }
+        ?>">글쓴이 홈으로</button>
+
+
 
         </div>
 
