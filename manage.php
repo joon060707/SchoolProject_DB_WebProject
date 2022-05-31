@@ -250,7 +250,7 @@ if(isset($_POST['loginid']) && isset($_POST['loginpw'])){
                     <td style="font-size: 16px; text-align: center;"><?php echo $result_u[$i]['count']; ?> </td>
                     <td style="font-size: 16px;"><?php echo $result_u[$i]['since']; ?> </td>
                     <td style="font-size: 16px;"><?php echo $result_u[$i]['greet']; ?> </td>
-                    <td style="font-size: 20px; font-size: 20px; text-align: center;"><?php echo $result_u[$i]['emoji']; ?> </td>
+                    <td style="font-size: 35px; text-align: center;"><?php echo $result_u[$i]['emoji']; ?> </td>
                     <td style="text-align: right;">
                         <form class="userdel" id="userdel" action="manage.php" onsubmit="return confirm('정말 삭제하시겠습니까?')" method="POST">
                             <input style="display:none" name="loginid" placeholder="" value="<?php echo $id; ?>" readonly>
